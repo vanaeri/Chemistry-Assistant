@@ -46,7 +46,7 @@ def index(state: State) -> Page:
         state,
         [
             Header("Chemistry Assistant"),
-            "This program calculates limiting reactants, theoretical yield, percent yield, and heat flow.",
+            "This program calculates limiting reactants, theoretical yield, percent yield, and heat flow. (Enter in Format: H2 + O2 -> H2O; no need to balance)\nThe first product will be the one that is analyzed.\n",
             TextBox("reaction", state.reaction),
             Button("Continue", "parse_reaction")
         ]
@@ -129,7 +129,7 @@ def reactant_masses(state: State) -> Page:
         state,
         [
             Header("Reactant Masses"),
-            "Enter the masses of the reactants in grams, separated by commas.",
+            "Enter the masses of the reactants in grams, separated by commas.\n",
             reactant_list,
             TextBox("reactant_masses", state.reactant_masses),
             Button("Continue", "product_selection")
@@ -170,7 +170,7 @@ def actual_yield(state: State) -> Page:
         state,
         [
             Header("Actual Yield"),
-            "Enter the harvested product mass in grams.",
+            "Enter the harvested product mass in grams.\n",
             TextBox(
                 "harvested_product_mass",
                 str(state.harvested_product_mass)
@@ -292,7 +292,7 @@ def thermochemistry_input(state: State) -> Page:
             Header("Thermochemistry"),
             "Enter the standard enthalpies of formation (ΔHf°) in kJ/mol.",
             "Enter one value for every chemical listed below, separated by commas.",
-            "Use the same order as the list.",
+            "Use the same order as the list.\n",
             chemical_list,
             TextBox(
                 "enthalpies_of_formation",
@@ -412,4 +412,3 @@ initial_state = State(
 )
 
 start_server(initial_state)
-
