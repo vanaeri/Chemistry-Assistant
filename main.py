@@ -175,7 +175,7 @@ def actual_yield(state: State) -> Page:
                 "harvested_product_mass",
                 str(state.harvested_product_mass)
             ),
-            Button("Calculate", "stoichiometry_analysis")
+            Button("Next", "thermochemistry_input")
         ]
     )
 
