@@ -1,8 +1,7 @@
 from bakery import assert_equal
 from dataclasses import dataclass
 from drafter import *
-from chempy import Reaction 
-from chempy import Substance
+from chempy import Reaction, Substance
 
 set_website_title("Chemistry Assistant")
 set_site_information(
