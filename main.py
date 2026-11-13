@@ -46,7 +46,7 @@ def index(state: State) -> Page:
         state,
         [
             Header("Chemistry Assistant"),
-            "This program calculates limiting reactants, theoretical yield, percent yield, and heat flow. (Enter in Format: H2 + O2 -> H2O; no need to balance)\nThe first product will be the one that is analyzed.\n",
+            "This program calculates limiting reactants, theoretical yield, percent yield, and heat flow. \n(Enter in Format: H2 + O2 -> H2O; no need to balance)\n(add spaces in between each seperate chemcicals and symbols)\nThe first product will be the one that is analyzed.\n",
             TextBox("reaction", state.reaction),
             Button("Continue", "parse_reaction")
         ]
@@ -175,7 +175,7 @@ def actual_yield(state: State) -> Page:
                 "harvested_product_mass",
                 str(state.harvested_product_mass)
             ),
-            Button("Next", "thermochemistry_input")
+            Button("Next", "stoichiometry_analysis")
         ]
     )
 
@@ -245,9 +245,9 @@ def stoichiometry_analysis(
         state,
         [
             Header("Stoichiometry Analysis"),
-            "Limiting Reactant: " + state.limiting_reactant,
-            "Theoretical Yield: " + str(round(state.theoretical_yield, 2)) + " g",
-            "Percent Yield: " + format(state.percent_yield, ".2f") + "%",
+            "Limiting Reactant: " + state.limiting_reactant + "\n",
+            "Theoretical Yield: " + str(round(state.theoretical_yield, 2)) + " g\n",
+            "Percent Yield: " + format(state.percent_yield, ".2f") + "%" + "\n",
             Button("Heat Analysis", "thermochemistry_input")
         ]
     )
@@ -362,12 +362,12 @@ def thermochemistry_results(
     return Page(
         state,
         [
-            Header("Thermochemistry Results"),
-            "Reaction Type: " + reaction_type,
-            "Heat of Reaction: " + format(state.heat_of_reaction, ".2f") + " kJ",
-            "Limiting Reactant: " + state.limiting_reactant,
-            "Theoretical Yield: " + str(round(state.theoretical_yield, 2)) + " g",
-            "Percent Yield: " + format(state.percent_yield, ".2f") + "%",
+            Header("Reaction Analysis"),
+            "Reaction Type: " + reaction_type + "\n",
+            "Heat of Reaction: " + format(state.heat_of_reaction, ".2f") + " kJ\n",
+            "Limiting Reactant: " + state.limiting_reactant + "\n",
+            "Theoretical Yield: " + str(round(state.theoretical_yield, 2)) + " g" + "\n",
+            "Percent Yield: " + format(state.percent_yield, ".2f") + "%" + "\n",
             Button("Start Over", "index")
         ]
     )
