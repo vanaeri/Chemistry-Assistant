@@ -82,20 +82,27 @@ def parse_reaction(state: State, reaction: str) -> Page:
     # ChemPy parses the chemical equation into reactants and products,
     # including their stoichiometric coefficients.
     reaction_data = Reaction.from_string(reaction)
-
-    for formula, coefficient in reaction_data.reac.items():
+    
+    # Preserve the order the user typed
+    reactant_side = reaction.split("->")[0]
+    reactant_order = [item.strip() for item in reactant_side.split("+")]
+    
+    for formula in reactant_order:
+        coefficient = reaction_data.reac[formula]
+    
         chemical = Chemical(
             formula=formula,
             starting_mass=0.0,
             ending_mass=0.0,
             moles=0.0,
-            # ChemPy calculates the molar mass from the chemical formula.
             molar_mass=Substance.from_formula(formula).mass,
             coefficient=coefficient,
             chosen_product=False,
             role="reactant"
         )
+
         state.chemicals.append(chemical)
+
 
     first_product = True
 
@@ -211,7 +218,17 @@ def stoichiometry_analysis(
 
     for i, chemical in enumerate(reactants):
         chemical.starting_mass = float(masses[i].strip())
-
+    
+        if chemical.starting_mass < 0:
+            return Page(
+                state,
+                [
+                    Header("Error"),
+                    "Masses cannot be negative.",
+                    Button("Back", "reactant_masses")
+                ]
+            )
+    
         chemical.moles = calculate_moles(
             chemical.starting_mass,
             chemical.molar_mass
@@ -224,6 +241,29 @@ def stoichiometry_analysis(
                 limiting_ratio = ratio
                 state.limiting_reactant = chemical.formula
 
+    for chemical in reactants:
+        moles_used = limiting_ratio * chemical.coefficient
+        
+        moles_left = chemical.moles - moles_used
+    
+        if moles_left < 0:
+            moles_left = 0
+
+        chemical.ending_mass = (
+            moles_left * chemical.molar_mass
+        )
+    
+     #Create text to display remaining masses
+    remaining_masses = ""
+    
+    for chemical in reactants:
+        remaining_masses += (
+            chemical.formula
+            + " remaining: "
+            + format(chemical.ending_mass, ".2f")
+            + " g\n"
+        )
+    
     # Calculate theoretical yield using the limiting reactant.
     state.theoretical_yield = 0.0
 
@@ -246,8 +286,13 @@ def stoichiometry_analysis(
         [
             Header("Stoichiometry Analysis"),
             "Limiting Reactant: " + state.limiting_reactant + "\n",
-            "Theoretical Yield: " + str(round(state.theoretical_yield, 2)) + " g\n",
-            "Percent Yield: " + format(state.percent_yield, ".2f") + "%" + "\n",
+            "Theoretical Yield: "
+            + str(round(state.theoretical_yield, 2))
+            + " g\n",
+            "Percent Yield: "
+            + format(state.percent_yield, ".2f")
+            + "%\n",
+            remaining_masses,
             Button("Heat Analysis", "thermochemistry_input")
         ]
     )
@@ -354,7 +399,16 @@ def thermochemistry_results(
 
     # ΔH reaction = Products - Reactants
     state.heat_of_reaction = product_heat - reactant_heat
+    
+    heat_per_mole = 0.0
 
+    for chemical in state.chemicals:
+        if chemical.chosen_product:
+            heat_per_mole = (
+                state.heat_of_reaction
+                / chemical.coefficient
+            )
+    
     reaction_type = determine_reaction_type(
         state.heat_of_reaction
     )
@@ -365,6 +419,7 @@ def thermochemistry_results(
             Header("Reaction Analysis"),
             "Reaction Type: " + reaction_type + "\n",
             "Heat of Reaction: " + format(state.heat_of_reaction, ".2f") + " kJ\n",
+            "Heat Flow Per Mole of Product: " + format(heat_per_mole, ".2f") + " kJ/mol\n",
             "Limiting Reactant: " + state.limiting_reactant + "\n",
             "Theoretical Yield: " + str(round(state.theoretical_yield, 2)) + " g" + "\n",
             "Percent Yield: " + format(state.percent_yield, ".2f") + "%" + "\n",
